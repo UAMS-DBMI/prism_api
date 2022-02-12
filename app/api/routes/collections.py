@@ -18,6 +18,16 @@ class CollectionInfo(BaseModel):
     collection_doi: str
 
 
+async def get_collection_id_from_slug(collection_slug: str, db: Database):
+    query = "select collection_id from collection where collection_slug = $1"
+    collection = await db.fetch_one(query, [collection_slug])
+    if len(collection) < 1:
+        raise HTTPException(
+            detail=f"Invalid collection slug: {collection_slug}", status_code=422
+        )
+    return collection["collection_id"]
+
+
 @router.get("/", response_model=List[CollectionInfo])
 async def get_all_collections(
     collection_slug: str = None, db: Database = Depends()
@@ -48,10 +58,10 @@ async def get_all_collections(
     return await db.fetch(query)
 
 
-@router.get("/{collection_slug}/{version_id}")
+@router.get("/{collection_slug}/{version_id}", response_model=CollectionInfo)
 async def get_collection_version_info(
     collection_slug: str, version_id: int, db: Database = Depends()
-):
+) -> CollectionInfo:
     query = """
         select
             collection_id, collection_slug,
@@ -66,8 +76,10 @@ async def get_collection_version_info(
     return await db.fetch_one(query, [collection_slug, version_id])
 
 
-@router.get("/{collection_slug}")
-async def get_collection_info(collection_slug: str, db: Database = Depends()):
+@router.get("/{collection_slug}", response_model=CollectionInfo)
+async def get_collection_info(
+    collection_slug: str, db: Database = Depends()
+) -> CollectionInfo:
     query = """
         select
             collection_id, collection_slug,
