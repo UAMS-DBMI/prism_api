@@ -47,7 +47,7 @@ async def get_all_collections(
 
 
 @router.get("/{collection_slug}/{version_id}")
-async def get_collection_info(
+async def get_collection_version_info(
     collection_slug: str, version_id: int, db: Database = Depends()
 ):
     query = """
@@ -62,3 +62,18 @@ async def get_collection_info(
     """
 
     return await db.fetch_one(query, [collection_slug, version_id])
+
+
+@router.get("/{collection_slug}")
+async def get_collection_info(collection_slug: str, db: Database = Depends()):
+    query = """
+        select
+            collection_id, collection_slug,
+            collection_name, collection_doi
+        from collection
+        natural join version
+        where collection_id = $1
+        group by collection_id
+    """
+
+    return await db.fetch_one(query, [collection_slug])
