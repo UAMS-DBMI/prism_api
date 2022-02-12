@@ -9,7 +9,7 @@ comment on column collection.collection_slug is 'The unique identifier used by P
 
 create table data_manager (
 	data_manager_id serial primary key,
-	data_manager_name text not null
+	data_manager_name text not null unique
 );
 
 create table file_type (
@@ -19,7 +19,7 @@ create table file_type (
 
 create table file_type_group (
 	file_type_id integer not null references file_type,
-	group_name text not null,
+	file_type_group_name text not null unique,
 	primary key (file_type_id, group_name)
 );
 
