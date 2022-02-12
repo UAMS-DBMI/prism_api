@@ -1,0 +1,35 @@
+version: '3.2'
+
+services:
+    db:
+        image: postgres:13-alpine
+        restart: always
+        environment:
+            POSTGRES_PASSWORD: example
+        volumes:
+            - pgdata_alpine:/var/lib/postgresql/data
+            - ./app/tables.sql:/docker-entrypoint-initdb.d/all.sql
+        ### Uncomment if you need to connect directly to the database
+        # ports:
+        #     - 5432:5432
+
+
+
+    prism_api:
+        image: tcia/prism_api:latest
+        restart: always
+        depends_on:
+            - db
+        ports:
+            - 8080:8080
+        environment:
+            PGHOST: db
+            PGUSER: postgres
+            PGPASSWORD: example
+            API_WORKERS: 4
+            ## This is the port the API will listen on internally,
+            ## and must be mapped above
+            API_PORT: 8080
+
+volumes:
+    pgdata_alpine:

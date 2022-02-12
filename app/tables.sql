@@ -1,3 +1,6 @@
+create database collection_manager;
+\connect collection_manager
+
 create table collection (
 	collection_id serial primary key,
 	collection_name text,
@@ -20,7 +23,7 @@ create table file_type (
 create table file_type_group (
 	file_type_id integer not null references file_type,
 	file_type_group_name text not null unique,
-	primary key (file_type_id, group_name)
+	primary key (file_type_id, file_type_group_name)
 );
 
 create table file (
