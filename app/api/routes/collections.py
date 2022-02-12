@@ -1,6 +1,7 @@
 from fastapi import Depends, APIRouter, HTTPException
 from pydantic import BaseModel
 from typing import List
+import re
 
 router = APIRouter()
 
@@ -77,3 +78,39 @@ async def get_collection_info(collection_slug: str, db: Database = Depends()):
     """
 
     return await db.fetch_one(query, [collection_slug])
+
+
+@router.post("/")
+async def create_collection(
+    collection_slug: str,
+    collection_name: str,
+    collection_doi: str,
+    db: Database = Depends(),
+):
+    slug_re = re.compile(r"[-_a-zA-Z0-9]+")
+    if re.fullmatch(slug_re, collection_slug) == None:
+        raise HTTPException(
+            detail=f"{collection_slug}: is not a valid collection slug. It must conform to the regular expression /[-_a-zA-Z0-9]+/ which is letters, numers, dashes, and underscores only.",
+            status_code=422,
+        )
+    query = """
+        insert into collection
+        (collection_name, collection_doi, collection_slug)
+        values
+        ($1, $2, $3)
+        returning collection_id
+    """
+    collection = await db.fetch_one(
+        query, [collection_name, collection_doi, collection_slug]
+    )
+    if len(collection) < 1:
+        raise HTTPException(detail=f"Failed to create collection", status_code=422)
+    collection_id = collection["collection_id"]
+    query = """
+        insert into version
+        (collection_id)
+        values
+        ($1)
+    """
+    await db.fetch(query, [collection_id])
+    return collection_id
