@@ -46,7 +46,7 @@ async def get_filetypes(
                 file_type_id, file_type_group_name, mime_type
             from file_type
             left join file_type_group
-                on file_type.file_type_group_id = file_type_group.file_type_group_id
+                on file_type.file_type_id = file_type_group.file_type_id
             where
                 mime_type = $1
         """
@@ -57,7 +57,7 @@ async def get_filetypes(
             file_type_id, file_type_group_name, mime_type
         from file_type
         left join file_type_group
-            on file_type.file_type_group_id = file_type_group.file_type_group_id
+            on file_type.file_type_id = file_type_group.file_type_id
     """
     return await db.fetch(query)
 

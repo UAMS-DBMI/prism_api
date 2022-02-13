@@ -16,6 +16,7 @@ class CollectionInfo(BaseModel):
     collection_slug: str
     collection_name: str
     collection_doi: str
+    file_count: int
 
 
 async def get_collection_id_from_slug(collection_slug: str, db: Database):
@@ -29,34 +30,19 @@ async def get_collection_id_from_slug(collection_slug: str, db: Database):
 
 
 @router.get("/", response_model=List[CollectionInfo])
-async def get_all_collections(
-    collection_slug: str = None, db: Database = Depends()
-) -> List[CollectionInfo]:
-    async def get_collections_by_slug(site_name):
-        query = """
-            select
-                collection_id, collection_slug,
-                collection_name, collection_doi
-            from collection
-            where collection_id = $1
-            group by collection_id
-        """
-
-        return await db.fetch(query, [collection_slug])
-
+async def get_all_collections(db: Database = Depends()) -> List[CollectionInfo]:
     query = """
         select
             collection_id, collection_slug,
-            collection_name, collection_doi
+            collection_name, collection_doi,
+            count(file_id) as file_count
         from collection
+        natural join version
+        natural join version_file
         group by collection_id
     """
 
-    if collection_slug is not None:
-        return await get_collections_by_slug(collection)
-
     return await db.fetch(query)
-
 
 @router.get("/{collection_slug}/{version_id}", response_model=CollectionInfo)
 async def get_collection_version_info(
@@ -65,9 +51,11 @@ async def get_collection_version_info(
     query = """
         select
             collection_id, collection_slug,
-            collection_name, collection_doi
+            collection_name, collection_doi,
+            count(file_id) as file_count
         from collection
         natural join version
+        natural join version_file
         where collection_id = $1
           and version_id = $2
         group by collection_id
@@ -83,10 +71,12 @@ async def get_collection_info(
     query = """
         select
             collection_id, collection_slug,
-            collection_name, collection_doi
+            collection_name, collection_doi,
+            count(file_id) as file_count
         from collection
         natural join version
-        where collection_id = $1
+        natural join version_file
+        where collection_slug = $1
         group by collection_id
     """
 

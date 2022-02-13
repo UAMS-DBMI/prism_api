@@ -63,9 +63,9 @@ async def get_all_files(
         natural join data_manager
         natural join file_type
         left join file_type_group
-        on file_type.file_type_group_id = file_type_group.file_type_group_id
+            on file_type.file_type_id = file_type_group.file_type_id
         where collection_slug = $1
-          and version_id = $2
+            and version_id = $2
     """
 
     return await db.fetch(query, [collection_slug, version_id])

@@ -1,4 +1,4 @@
 default: serve
 
 serve:
-	uvicorn main:app
+	uvicorn main:app --port 8080

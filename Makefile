@@ -15,3 +15,6 @@ run: last_update
 		-e PGPASSWORD=example \
 		-p 8080:8080 \
 		tcia/prism_api
+
+clean:
+	rm last_update
