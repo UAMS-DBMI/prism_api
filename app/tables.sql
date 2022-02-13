@@ -5,7 +5,8 @@ create table collection (
 	collection_id serial primary key,
 	collection_name text,
 	collection_doi text,
-	collection_slug text not null unique
+	collection_slug text not null unique,
+	collection_description text
 );
 
 comment on column collection.collection_slug is 'The unique identifier used by PRISM APIs to refer to the collection, [-_a-zA-Z0-9]';
@@ -45,9 +46,4 @@ create table version_file (
 	version_id integer references version,
 	file_id integer references file,
 	primary key (version_id, file_id)
-);
-
-create table collection_info (
-	collection_id integer references collection not null,
-	description text
 );
