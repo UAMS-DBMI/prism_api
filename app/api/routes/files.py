@@ -21,19 +21,21 @@ class FileInfo(BaseModel):
     data_manager_name: str
     file_type_group_name: Optional[str] = None
 
+class FileUpload(BaseModel):
+    collection_slug: str
+    data_manager_name: str
+    external_id: str
+    mime: str
 
 @router.post("/import")
 async def import_file(
-    collection_slug: str,
-    data_manager_name: str,
-    external_id: str,
-    mime: str,
+    upload: FileUpload,
     db: Database = Depends(),
 ):
-    collection_id = await get_collection_id_from_slug(collection_slug, db)
-    version_id = await get_latest_version(collection_id, collection_slug, db)
-    data_manager_id = await get_data_manager_id_from_name(data_manager_name, db)
-    file_type_id = await get_or_create_file_type(mime, db)
+    collection_id = await get_collection_id_from_slug(upload.collection_slug, db)
+    version_id = await get_latest_version(collection_id, upload.collection_slug, db)
+    data_manager_id = await get_data_manager_id_from_name(upload.data_manager_name, db)
+    file_type_id = await get_or_create_file_type(upload.mime, db)
     query = """
 		insert into file
 		(data_manager_id, file_type_id, external_id)
@@ -41,7 +43,7 @@ async def import_file(
 		($1, $2, $3)
 		returning file_id
 	"""
-    file = await db.fetch_one(query, [data_manager_id, file_type_id, external_id])
+    file = await db.fetch_one(query, [data_manager_id, file_type_id, upload.external_id])
     file_id = file["file_id"]
     await add_file_to_version(file_id, version_id, db)
     return file_id
