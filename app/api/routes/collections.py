@@ -15,7 +15,7 @@ class CollectionSummary(BaseModel):
     collection_id: int
     collection_slug: str
     collection_name: str
-    collection_doi: str
+    collection_doi: Optional[str] = None
     file_count: Optional[int] = 0
 
 
@@ -23,7 +23,7 @@ class CollectionInfo(BaseModel):
     collection_id: int
     collection_slug: str
     collection_name: str
-    collection_doi: str
+    collection_doi: Optional[str] = None
     file_count: Optional[int] = 0
     collection_description: Optional[str] = None
 

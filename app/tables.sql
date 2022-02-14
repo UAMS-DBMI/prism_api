@@ -3,7 +3,7 @@ create database collection_manager;
 
 create table collection (
 	collection_id serial primary key,
-	collection_name text,
+	collection_name text not null,
 	collection_doi text,
 	collection_slug text not null unique,
 	collection_description text
@@ -47,3 +47,18 @@ create table version_file (
 	file_id integer references file,
 	primary key (version_id, file_id)
 );
+
+insert into collection
+	(collection_name, collection_slug)
+	values
+	('Public', 'public');
+
+insert into version
+	(collection_id)
+	values
+	(1);
+
+insert into data_manager
+	(data_manager_name)
+	values
+	('facet');

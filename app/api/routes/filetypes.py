@@ -25,14 +25,18 @@ async def get_or_create_file_type(mime_type: str, db: Database):
     query = "select file_type_id from file_type where mime_type = $1"
     file_type = await db.fetch_one(query, [mime_type])
     if len(file_type) < 1:
-        query = """
-            insert into file_type
-            (mime_type)
-            values
-            ($1)
-            returning file_type_id
-        """
-        file_type = await db.fetch_one(query, [mime_type])
+        try:
+            query = """
+                insert into file_type
+                (mime_type)
+                values
+                ($1)
+                returning file_type_id
+            """
+            file_type = await db.fetch_one(query, [mime_type])
+        except UniqueViolationError:
+            query = "select file_type_id from file_type where mime_type = $1"
+            file_type = await db.fetch_one(query, [mime_type])
     return file_type["file_type_id"]
 
 
