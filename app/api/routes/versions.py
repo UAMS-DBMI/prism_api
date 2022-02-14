@@ -41,6 +41,7 @@ async def get_filetypes(
         from version
         natural join collection
         where collection_slug = $1
+        order by version_id desc
     """
     return await db.fetch(query, [collection_slug])
 

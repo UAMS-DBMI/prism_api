@@ -68,8 +68,8 @@ async def get_collection_version_info(
         natural join version
         left join version_file
             on version.version_id = version_file.version_id
-        where collection_id = $1
-          and version_id = $2
+        where collection_slug = $1
+          and version.version_id = $2
         group by collection_id
     """
 
