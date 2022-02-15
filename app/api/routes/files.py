@@ -1,6 +1,8 @@
-from fastapi import Depends, APIRouter, HTTPException
+from fastapi import Depends, APIRouter, HTTPException, Request
 from pydantic import BaseModel
 from typing import List, Optional
+from fastapi.security import HTTPBasic, HTTPBasicCredentials
+import requests
 
 router = APIRouter()
 
@@ -12,6 +14,7 @@ from .filetypes import get_or_create_file_type
 
 from ..util import Database
 
+security = HTTPBasic()
 
 class FileInfo(BaseModel):
     file_id: int
@@ -26,6 +29,29 @@ class FileUpload(BaseModel):
     data_manager_name: str
     external_id: str
     mime: str
+
+class PathDBImage(BaseModel):
+    image_id: str
+    subject_id: str
+    study_id: str
+    external_id: str
+
+@router.get("/sync/pathdb/{collection_slug}", response_model=List[PathDBImage])
+def sync_pathdb(collection_slug: str, request: Request, credentials: HTTPBasicCredentials = Depends(security)) -> List[PathDBImage]:
+    auth = request.headers['Authorization']
+    url = "http://quip-pathdb-pathdb.apps.dbmi.cloud/listofimages"
+    querystring = { "_format":"json" }
+    headers = { "Authorization": auth }
+    response = requests.request("GET", url, headers=headers, params=querystring)
+    ret = []
+    for row in response.json():
+        nid = row['nid'][0]['value']
+        subject_id = row['clinicaltrialsubjectid'][0]['value']
+        image_id = row['imageid'][0]['value']
+        study_id = row['studyid'][0]['value']
+        ret.append(PathDBImage(image_id = image_id, subject_id = subject_id, study_id = study_id, external_id = f'http://quip-pathdb-pathdb.apps.dbmi.cloud/caMicroscope/apps/viewer/viewer.html?slideId={nid}&mode=pathdb'))
+    return ret
+
 
 @router.post("/import")
 async def import_file(

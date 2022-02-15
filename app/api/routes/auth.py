@@ -4,11 +4,11 @@ from pydantic import BaseModel
 from starlette.status import HTTP_401_UNAUTHORIZED
 
 fake_users_db = {
-    "johndoe": {
-        "username": "johndoe",
-        "full_name": "John Doe",
-        "email": "johndoe@example.com",
-        "hashed_password": "fakehashedsecret",
+    "admin": {
+        "username": "admin",
+        "full_name": "Big Cheese",
+        "email": "admin@example.com",
+        "hashed_password": "fakehashedbluecheese2018",
         "disabled": False,
     },
     "alice": {
