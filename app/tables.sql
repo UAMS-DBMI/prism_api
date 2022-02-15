@@ -49,9 +49,9 @@ create table version_file (
 );
 
 insert into collection
-	(collection_name, collection_slug)
+	(collection_name, collection_slug, collection_doi)
 	values
-	('Public', 'public');
+	('Public', 'public', 'http://collectionmanager.apps.dbmi.cloud');
 
 insert into version
 	(collection_id)
@@ -62,3 +62,8 @@ insert into data_manager
 	(data_manager_name)
 	values
 	('facet');
+
+insert into data_manager
+	(data_manager_name)
+	values
+	('pathDB');
