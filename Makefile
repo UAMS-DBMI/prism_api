@@ -18,3 +18,6 @@ run: last_update
 
 clean:
 	rm last_update
+
+push:
+	docker push tcia/prism_api:latest
