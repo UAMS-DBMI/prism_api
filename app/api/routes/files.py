@@ -16,10 +16,12 @@ from .filetypes import get_or_create_file_type
 from ..util import Database
 
 security = HTTPBasic()
-PATH_DB_HOST = os.environ.get(
-    "PATH_DB_HOST", "http://quip-pathdb-pathdb.apps.dbmi.cloud"
-)
+PATH_DB_HOST = os.environ.get("PATH_DB_HOST", "http://pathdb.127.0.0.1.nip.io:8080")
 PATH_DB_INTERNAL = os.environ.get("PATH_DB_INTERNAL", "http://quip-pathdb")
+NBIA_HOST = os.environ.get("NBIA_HOST", "http://nbia.127.0.0.1.nip.io:8080")
+NBIA_INTERNAL = os.environ.get(
+    "NBIA_INTERNAL", "http://nbia.127.0.0.1.nip.io:8080/nbia-api"
+)
 
 
 class FileInfo(BaseModel):
@@ -77,6 +79,23 @@ def sync_pathdb(
             )
         )
     return ret
+
+
+@router.get("/sync/nbia/{collection_slug}")
+def sync_nbia(collection_slug: str, request: Request):
+    print("got here???")
+    url = f"{NBIA_INTERNAL}/services/v1/getSeries"
+    querystring = {"Collection": collection_slug}
+    headers = {
+        "Accept": "application/json",
+    }
+    response = requests.request("GET", url, headers=headers, params=querystring)
+    if response.ok == False:
+        raise HTTPException(
+            detail=response.text,
+            status_code=response.status_code,
+        )
+    return response.json()
 
 
 @router.post("/import")
