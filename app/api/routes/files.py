@@ -83,7 +83,6 @@ def sync_pathdb(
 
 @router.get("/sync/nbia/{collection_slug}")
 def sync_nbia(collection_slug: str, request: Request):
-    print("got here???")
     url = f"{NBIA_INTERNAL}/services/v1/getSeries"
     querystring = {"Collection": collection_slug}
     headers = {
